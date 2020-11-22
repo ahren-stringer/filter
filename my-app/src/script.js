@@ -3,10 +3,11 @@ let map=new Map();
 
 document.getElementById('player').onclick = function (event) {
     if (event.target.id=='filter'){
-        audio = event.target.parentElement.firstChild
+        audio = event.target.parentElement.querySelector('audio')
         // if (!context) {
             preparation(+audio.class);
         // }
+        event.target.hidden=true
         if (audio.paused) {
             audio.play();
             loop();

@@ -10,17 +10,33 @@
 </head>
 
 <body>
-    <div id="player"></div>
-    <button id="start">Начать запись</button>
-    <button id="stop">Остановить запись</button>
-    <!-- <button id="filter">Применить фильтр 1000</button> -->
+    <div class="title">
+        <h1>
+            Цифровая фильтрация
+        </h1>
+    </div>
+    <div class='wrapper'>
+        <div class='btn__wrapper'>
+            <button id="start" class="main__btn">Начать запись</button>
+            <button id="stop" class="main__btn">Остановить запись</button>
+            <div id='img' hidden='true'>
+                <div class="record">
+                    Идет запись
+                </div>
+                <img src="./hertz-2011-hp.gif">
+            </div>
+        </div>
+        <div id="player"></div>
+    </div>
+
     <script>
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(stream => {
                 const mediaRecorder = new MediaRecorder(stream);
-
+                let preloader=false;
                 document.querySelector('#start').addEventListener('click', function () {
                     mediaRecorder.start();
+                    document.getElementById('img').hidden=false
                 });
                 var audioChunks = [];
                 mediaRecorder.addEventListener("dataavailable", function (event) {
@@ -33,38 +49,38 @@
                     });
                     const audioUrl = URL.createObjectURL(audioBlob);
                     var div = document.createElement('div')
+                    div.classList.add('sound')
                     var audio = document.createElement('audio');
                     audio.id = 'audio';
 
-                    var divFilter__1000=document.createElement('div')
-                    var filterBtn__1000= document.createElement('button');
-                    filterBtn__1000.innerHTML='Применить фильтр 1000';
-                    filterBtn__1000.id='filter'
-                    filterBtn__1000.onclick=()=>{
-                        var audio = document.createElement('audio');
-                        audio.class = '1000';
-                        audio.src = audioUrl;
-                        audio.controls = true;
-                        divFilter__1000.prepend(audio)
-                    }
-                    divFilter__1000.append(filterBtn__1000)
+                    function filter(fr) {
+                        var divFilter = document.createElement('div')
+                        divFilter.classList.add('filtered__sound')
+                        var filterBtn = document.createElement('button');
+                        filterBtn.innerHTML = 'Применить фильтр с граничной частотой ' + fr+' Гц';
+                        filterBtn.id = 'filter'
+                        filterBtn.onclick = () => {
+                            var audio = document.createElement('audio');
+                            audio.class = String(fr);
+                            audio.src = audioUrl;
+                            audio.controls = true;
+                            divFilter.prepend(audio)
 
-                    var divFilter__5000=document.createElement('div')
-                    var filterBtn__5000= document.createElement('button');
-                    filterBtn__5000.innerHTML='Применить фильтр 5000';
-                    filterBtn__5000.id='filter'
-                    filterBtn__5000.onclick=()=>{
-                        var audio = document.createElement('audio');
-                        audio.class = '500';
-                        audio.src = audioUrl;
-                        audio.controls = true;
-                        divFilter__5000.prepend(audio)
+                            var message = document.createElement("div")
+                            message.classList.add('filtered__message')
+                            message.innerHTML = 'Звуковое сообщение на выходе фильтра нижних частот с граничной частотой ' + fr + ' Гц'
+                            divFilter.prepend(message)
+                        }
+                        divFilter.append(filterBtn)
+
+                        return divFilter
                     }
-                    divFilter__5000.append(filterBtn__5000)
+                    var divFilter__1000 = filter(1000);
+                    var divFilter__5000 = filter(5000);
 
                     div.append(audio)
                     div.append(divFilter__1000)
-                    div.append(divFilter__5000)                    
+                    div.append(divFilter__5000)
                     audio.src = audioUrl;
                     audio.controls = true;
                     audio.autoplay = true;
@@ -73,13 +89,11 @@
                 });
                 document.querySelector('#stop').addEventListener('click', function () {
                     mediaRecorder.stop();
+                    document.getElementById('img').hidden=true;
                 });
             });
     </script>
-    <!-- <div id='play__btn'>
 
-    </div>
-    <audio controls src="myRecording00.wav" id="audio"></audio> -->
     <script src="script.js"></script>
 </body>
 
