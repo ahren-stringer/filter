@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,79 @@
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <audio src="0788.mp3" id="audio"></audio>
-    <div id="logo"></div>
+    <div id="player"></div>
+    <button id="start">Начать запись</button>
+    <button id="stop">Остановить запись</button>
+    <!-- <button id="filter">Применить фильтр 1000</button> -->
+    <script>
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                const mediaRecorder = new MediaRecorder(stream);
+
+                document.querySelector('#start').addEventListener('click', function () {
+                    mediaRecorder.start();
+                });
+                var audioChunks = [];
+                mediaRecorder.addEventListener("dataavailable", function (event) {
+                    audioChunks.push(event.data);
+                });
+
+                mediaRecorder.addEventListener("stop", function () {
+                    const audioBlob = new Blob(audioChunks, {
+                        type: 'audio/wav'
+                    });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    var div = document.createElement('div')
+                    var audio = document.createElement('audio');
+                    audio.id = 'audio';
+
+                    var divFilter__1000=document.createElement('div')
+                    var filterBtn__1000= document.createElement('button');
+                    filterBtn__1000.innerHTML='Применить фильтр 1000';
+                    filterBtn__1000.id='filter'
+                    filterBtn__1000.onclick=()=>{
+                        var audio = document.createElement('audio');
+                        audio.class = '1000';
+                        audio.src = audioUrl;
+                        audio.controls = true;
+                        divFilter__1000.prepend(audio)
+                    }
+                    divFilter__1000.append(filterBtn__1000)
+
+                    var divFilter__5000=document.createElement('div')
+                    var filterBtn__5000= document.createElement('button');
+                    filterBtn__5000.innerHTML='Применить фильтр 5000';
+                    filterBtn__5000.id='filter'
+                    filterBtn__5000.onclick=()=>{
+                        var audio = document.createElement('audio');
+                        audio.class = '500';
+                        audio.src = audioUrl;
+                        audio.controls = true;
+                        divFilter__5000.prepend(audio)
+                    }
+                    divFilter__5000.append(filterBtn__5000)
+
+                    div.append(audio)
+                    div.append(divFilter__1000)
+                    div.append(divFilter__5000)                    
+                    audio.src = audioUrl;
+                    audio.controls = true;
+                    audio.autoplay = true;
+                    document.querySelector('#player').appendChild(div);
+                    audioChunks = [];
+                });
+                document.querySelector('#stop').addEventListener('click', function () {
+                    mediaRecorder.stop();
+                });
+            });
+    </script>
+    <!-- <div id='play__btn'>
+
+    </div>
+    <audio controls src="myRecording00.wav" id="audio"></audio> -->
     <script src="script.js"></script>
 </body>
+
 </html>

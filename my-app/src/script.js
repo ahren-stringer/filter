@@ -1,44 +1,43 @@
 var audio, context, analyser, src, array, logo;
+let map=new Map();
 
-logo = document.getElementById("logo").style;
-
-audio = document.getElementById("audio");
-
-window.onclick = function () {
-    if (!context) {
-        preparation();
-    }
-    if (audio.paused) {
-        audio.play();
-        loop();
-    } else {
-        audio.pause();
+document.getElementById('player').onclick = function (event) {
+    if (event.target.id=='filter'){
+        audio = event.target.parentElement.firstChild
+        // if (!context) {
+            preparation(+audio.class);
+        // }
+        if (audio.paused) {
+            audio.play();
+            loop();
+        } else {
+            audio.pause();
+        }
     }
 }
 
-function preparation() {
+function preparation(fr) {
     context = new AudioContext();
-    analyser = context.createAnalyser();
     src = context.createMediaElementSource(audio);
 
-    var filter = context.createBiquadFilter();
+    var filter = context.createBiquadFilter(fr);
     filter.type = 'lowpass'; // тип фильтра
-    filter.frequency.value = 100; // частота
+    filter.frequency.value = fr; // частота
     filter.Q.value = 0.7;
-
+debugger
     src.connect(filter);
-    filter.connect(analyser)
-    analyser.connect(context.destination);
+    filter.connect(context.destination);
+    }
     loop();
-}
+//}
 
 function loop() {
-    if (!audio.paused) {
-        window.requestAnimationFrame(loop);
-    }
-    array = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(array);
+    // if (!audio.paused) {
+    //     window.requestAnimationFrame(loop);
+    // }
+    // array = new Uint8Array(analyser.frequencyBinCount);
+    // analyser.getByteFrequencyData(array);
 
-    logo.minHeight = (array[40]) + "px";
-    logo.width = (array[40]) + "px";
+    // logo.minHeight = (array[40]) + "px";
+    // logo.width = (array[40]) + "px";
 }
