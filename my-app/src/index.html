@@ -33,10 +33,10 @@
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(stream => {
                 const mediaRecorder = new MediaRecorder(stream);
-                let preloader=false;
+                let preloader = false;
                 document.querySelector('#start').addEventListener('click', function () {
                     mediaRecorder.start();
-                    document.getElementById('img').hidden=false
+                    document.getElementById('img').hidden = false
                 });
                 var audioChunks = [];
                 mediaRecorder.addEventListener("dataavailable", function (event) {
@@ -53,34 +53,134 @@
                     var audio = document.createElement('audio');
                     audio.id = 'audio';
 
-                    function filter(fr) {
-                        var divFilter = document.createElement('div')
-                        divFilter.classList.add('filtered__sound')
-                        var filterBtn = document.createElement('button');
-                        filterBtn.innerHTML = 'Применить фильтр с граничной частотой ' + fr+' Гц';
-                        filterBtn.id = 'filter'
-                        filterBtn.onclick = () => {
-                            var audio = document.createElement('audio');
-                            audio.class = String(fr);
-                            audio.src = audioUrl;
-                            audio.controls = true;
-                            divFilter.prepend(audio)
 
-                            var message = document.createElement("div")
-                            message.classList.add('filtered__message')
-                            message.innerHTML = 'Звуковое сообщение на выходе фильтра нижних частот с граничной частотой ' + fr + ' Гц'
-                            divFilter.prepend(message)
+                    //container
+                    var divFilter = document.createElement('div')
+                    divFilter.classList.add('filtered__sound')
+                    //message
+                    let titleHight = document.createElement('span');
+                    titleHight.innerHTML = 'Верхняя граничнаая частота: ';
+                    let divHight = document.createElement('div');
+                    divHight.append(titleHight)
+
+                    let titleLow = document.createElement('span');
+                    titleLow.innerHTML = 'Нижняя граничнаая частота: ';
+                    let divLow = document.createElement('div');
+                    divLow.append(titleLow)
+                    //input frequency
+                    let inputHight = document.createElement('input');
+                    inputHight.id = 'hightFr'
+                    inputHight.value = 0;
+                    divHight.append(inputHight)
+
+                    let inputLow = document.createElement('input');
+                    inputLow.id = 'lowFr'
+                    inputLow.value = 0;
+                    divLow.append(inputLow)
+                    //button
+                    var filterPolos = document.createElement('button');
+                    filterPolos.innerHTML = 'Применить полосовой фильтр';
+                    filterPolos.id = 'filter__polos'
+
+                    var filterRej = document.createElement('button');
+                    filterRej.innerHTML = 'Применить режекторный фильтр';
+                    filterRej.id = 'filter__rej'
+
+                    var audioElem;
+
+                    document.getElementById('player').onclick = function (event) {
+                        debugger
+                        if (event.target.tagName=='BUTTON'){
+                            let hightFr = document.getElementById("hightFr").value;
+                        let lowFr = document.getElementById('lowFr').value;
+                        var audioNew = document.createElement('audio');
+                        //audio.class = String(fr);
+                        audioNew.src = audioUrl;
+                        audioNew.controls = true;
+                        audioNew.autoplay = true;
+
+                        var message = document.createElement("div")
+                        message.classList.add('filtered__message')
+                        divFilter.append(audioNew)
+                        if (event.target.id == 'filter__polos') {
+                            debugger
+                            audioElem = event.target.parentElement.querySelectorAll('audio')[event.target.parentElement.querySelectorAll('audio').length - 1]
+                            preparation(+document.getElementById('lowFr').value, +document.getElementById('hightFr').value);
+                            message.innerHTML = 'Звуковое сообщение на выходе фильтра c полосой пропускания от ' + lowFr + ' Гц' + ' до ' + hightFr + ' Гц'
+                            if (audio.paused) {
+                                audio.play();
+                            } else {
+                                audio.pause();
+                            }
                         }
-                        divFilter.append(filterBtn)
-
-                        return divFilter
+                        if (event.target.id == 'filter__rej') {
+                            audioElem = event.target.parentElement.querySelectorAll('audio')[event.target.parentElement.querySelectorAll('audio').length - 1]
+                            preparation(+document.getElementById('hightFr').value, +document.getElementById('lowFr').value);
+                            message.innerHTML = 'Звуковое сообщение на выходе фильтра c полосой подавления от ' + lowFr + ' Гц' + ' до ' + hightFr + ' Гц'
+                            if (audio.paused) {
+                                audio.play();
+                            } else {
+                                audio.pause();
+                            }
+                        }
+                        audioNew.before(message)
+                        }
                     }
-                    var divFilter__1000 = filter(1000);
-                    var divFilter__5000 = filter(5000);
+
+                    function preparation(lowFr, hightFr) {
+                        let context = new AudioContext();
+                        src = context.createMediaElementSource(audioElem);
+                        //let fr=(lowFr+hightFr)/2;
+
+                        var FNCH = context.createBiquadFilter(hightFr);
+                        FNCH.type = 'lowpass'; // тип фильтра
+                        FNCH.frequency.value = hightFr; // частота
+                        FNCH.Q.value = 0.7;
+
+                        var FVCH = context.createBiquadFilter(lowFr);
+                        FVCH.type = 'highpass'; // тип фильтра
+                        FVCH.frequency.value = lowFr; // частота
+                        FVCH.Q.value = 0.7;
+
+                        src.connect(FVCH);
+                        FVCH.connect(FNCH);
+                        FNCH.connect(context.destination)
+                    }
+
+                    // divFilter.onclick = (event) => {
+                    //     if (event.target.type == 'BUTTON') {
+                    //         debugger
+                    //         let hightFr = event.target.parentElement.querySelectorAll('input')[0].value;
+                    //         let lowFr = event.target.parentElement.querySelectorAll('input')[1].value;
+                    //         var audio = document.createElement('audio');
+                    //         //audio.class = String(fr);
+                    //         audio.src = audioUrl;
+                    //         audio.controls = true;
+
+                    //         var message = document.createElement("div")
+                    //         message.classList.add('filtered__message')
+                    //         if (event.target.id=='filter__polos'){
+                    //             message.innerHTML = 'Звуковое сообщение на выходе фильтра c полосой пропускания от ' + lowFr + ' Гц' + ' до ' + hightFr + ' Гц'
+                    //         }
+                    //         if (event.target.id=='filter__rej'){
+                    //             message.innerHTML = 'Звуковое сообщение на выходе фильтра c полосой подавления от ' + lowFr + ' Гц' + ' до ' + hightFr + ' Гц'
+                    //         }
+                    //         divFilter.append(message)
+                    //         divFilter.append(audio)
+                    //     }
+                    // }
+                    divFilter.append(divHight)
+                    divFilter.append(divLow)
+                    divFilter.append(filterPolos)
+                    divFilter.append(filterRej)
+
+
+                    //var divFilter__1000 = filter(1000);
+                    //var divFilter__5000 = filter(5000);
 
                     div.append(audio)
-                    div.append(divFilter__1000)
-                    div.append(divFilter__5000)
+                    div.append(divFilter)
+                    //div.append(divFilter__5000)
                     audio.src = audioUrl;
                     audio.controls = true;
                     audio.autoplay = true;
@@ -89,7 +189,7 @@
                 });
                 document.querySelector('#stop').addEventListener('click', function () {
                     mediaRecorder.stop();
-                    document.getElementById('img').hidden=true;
+                    document.getElementById('img').hidden = true;
                 });
             });
     </script>
