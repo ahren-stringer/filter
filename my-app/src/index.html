@@ -97,7 +97,7 @@
                         //audio.class = String(fr);
                         audioNew.src = audioUrl;
                         audioNew.controls = true;
-                        audioNew.autoplay = true;
+                        //audioNew.autoplay = true;
 
                         var message = document.createElement("div")
                         message.classList.add('filtered__message')
@@ -107,20 +107,20 @@
                             audioElem = event.target.parentElement.querySelectorAll('audio')[event.target.parentElement.querySelectorAll('audio').length - 1]
                             preparation(+document.getElementById('lowFr').value, +document.getElementById('hightFr').value);
                             message.innerHTML = 'Звуковое сообщение на выходе фильтра c полосой пропускания от ' + lowFr + ' Гц' + ' до ' + hightFr + ' Гц'
-                            if (audio.paused) {
-                                audio.play();
+                            if (audioElem.paused) {
+                                audioElem.play();
                             } else {
-                                audio.pause();
+                                audioElem.pause();
                             }
                         }
                         if (event.target.id == 'filter__rej') {
                             audioElem = event.target.parentElement.querySelectorAll('audio')[event.target.parentElement.querySelectorAll('audio').length - 1]
                             preparation(+document.getElementById('hightFr').value, +document.getElementById('lowFr').value);
                             message.innerHTML = 'Звуковое сообщение на выходе фильтра c полосой подавления от ' + lowFr + ' Гц' + ' до ' + hightFr + ' Гц'
-                            if (audio.paused) {
-                                audio.play();
+                            if (audioElem.paused) {
+                                audioElem.play();
                             } else {
-                                audio.pause();
+                                audioElem.pause();
                             }
                         }
                         audioNew.before(message)
@@ -169,8 +169,8 @@
                     //         divFilter.append(audio)
                     //     }
                     // }
-                    divFilter.append(divHight)
                     divFilter.append(divLow)
+                    divFilter.append(divHight)
                     divFilter.append(filterPolos)
                     divFilter.append(filterRej)
 
